@@ -1,0 +1,39 @@
+name: Calles INDEC (Georef)
+# Descarga la base de ejes de calles del INDEC publicada por Georef (datos.gob.ar) y la separa por provincia.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['pedido-calles.txt']
+permissions:
+  contents: write
+jobs:
+  calles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar y separar por provincia
+        run: |
+          set -e
+          curl -sSL --retry 5 -o calles.ndjson https://infra.datos.gob.ar/georef/calles.ndjson
+          ls -la calles.ndjson
+          python3 - <<'PY'
+          import json, gzip, collections
+          out = {}; meta = None; n = collections.Counter()
+          for l in open('calles.ndjson'):
+              j = json.loads(l)
+              if 'provincia' not in j: meta = j; continue
+              p = j['provincia']['id']; n[p] += 1
+              if p not in out: out[p] = gzip.open(f'calles_{p}.ndjson.gz', 'wt')
+              out[p].write(l)
+          for f in out.values(): f.close()
+          json.dump(dict(meta=meta, por_provincia=n), open('calles_meta.json', 'w'), indent=1)
+          print(meta, dict(n))
+          PY
+          ls -la calles_*
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete calles-indec -y --cleanup-tag 2>/dev/null || true
+          gh release create calles-indec calles_*.ndjson.gz calles_meta.json --title "Calles INDEC (Georef, datos.gob.ar)" \
+            --notes "Ejes de calles del INDEC publicados por la API Georef (datos.gob.ar), separados por provincia (código INDEC)."
