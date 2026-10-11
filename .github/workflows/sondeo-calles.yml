@@ -1,0 +1,28 @@
+name: Sondeo fuentes oficiales de calles
+on:
+  workflow_dispatch:
+  push:
+    paths: ['sondeo.txt']
+permissions:
+  contents: write
+jobs:
+  sondeo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probar Georef (API de datos.gob.ar)
+        run: |
+          set +e
+          mkdir -p out
+          curl -sS -m 60 "https://apis.datos.gob.ar/georef/api/calles?provincia=90&max=3&campos=completo" -o out/georef_calles_muestra.json; echo "api calles: $?"
+          curl -sS -m 60 "https://apis.datos.gob.ar/georef/api/calles?provincia=90&max=1&campos=id" -o out/georef_total.json
+          for u in https://infra.datos.gob.ar/georef/calles.json https://infra.datos.gob.ar/georef/calles.ndjson https://infra.datos.gob.ar/georef/calles.geojson https://infra.datos.gob.ar/georef/calles.csv; do
+            echo "$u $(curl -sS -I -m 60 -L "$u" | grep -iE '^HTTP|content-length' | tr '\r\n' '  ')"; done > out/descargas.txt
+          head -c 1500000 <(curl -sS -m 300 -L https://infra.datos.gob.ar/georef/calles.ndjson) > out/calles_head.ndjson
+          ls -la out; cat out/descargas.txt; head -c 1500 out/georef_calles_muestra.json; head -c 800 out/calles_head.ndjson
+      - name: Publicar resultado
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete sondeo -y --cleanup-tag 2>/dev/null || true
+          gh release create sondeo out/* --title "Sondeo fuentes de calles" --notes "Prueba de acceso a fuentes oficiales de calles (Georef)."
