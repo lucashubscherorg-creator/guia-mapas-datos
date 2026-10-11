@@ -1,0 +1,29 @@
+name: Cobertura del suelo ESA WorldCover
+# Descarga teselas ESA WorldCover 10 m (2021, v200) y las publica. Teselas de 3x3 grados nombradas por su esquina SO.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['pedido-worldcover.txt']
+permissions:
+  contents: write
+jobs:
+  wc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar
+        run: |
+          set -e
+          read TAG TILES < pedido-worldcover.txt     # ej.: tucuman S27W066 S30W066 S27W069 S30W069
+          echo "TAG=$TAG" >> $GITHUB_ENV; mkdir -p wc
+          for t in $TILES; do
+            n=ESA_WorldCover_10m_2021_v200_${t}_Map.tif
+            curl -sS -f --retry 3 -o wc/$n https://esa-worldcover.s3.eu-central-1.amazonaws.com/v200/2021/map/$n && echo "ok $n" || echo "falta $n"
+          done; ls -la wc
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete wc-$TAG -y --cleanup-tag 2>/dev/null || true
+          gh release create wc-$TAG wc/*.tif --title "ESA WorldCover 10 m 2021 — $TAG" \
+            --notes "© ESA WorldCover project 2021 / Contains modified Copernicus Sentinel data (2021) processed by ESA WorldCover consortium. Licencia CC BY 4.0."
