@@ -1,0 +1,28 @@
+name: Descarga de datos oficiales por URL
+# Lee pedido-url.txt: primera línea = TAG; siguientes = "NOMBRE URL". Descarga, calcula SHA-256 y publica en la release dl-TAG.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['pedido-url.txt']
+permissions:
+  contents: write
+jobs:
+  dl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar
+        run: |
+          set -e
+          TAG=$(head -1 pedido-url.txt); echo "TAG=$TAG" >> $GITHUB_ENV; mkdir -p dl
+          tail -n +2 pedido-url.txt | while read N U; do
+            [ -z "$N" ] && continue
+            curl -sS -L -f --retry 3 -A "Mozilla/5.0" -o dl/$N "$U" && echo "ok $N" || echo "falla $N"
+          done
+          (cd dl && sha256sum * > SHA256SUMS.txt); ls -la dl
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete dl-$TAG -y --cleanup-tag 2>/dev/null || true
+          gh release create dl-$TAG dl/* --title "Descarga $TAG" --notes "Archivos descargados de su fuente oficial (ver pedido-url.txt). SHA-256 en SHA256SUMS.txt."
