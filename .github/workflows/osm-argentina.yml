@@ -1,0 +1,37 @@
+name: OSM Argentina (Geofabrik)
+# Descarga el extracto de Argentina de Geofabrik, verifica el MD5 y lo publica como release.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['pedido.txt']
+permissions:
+  contents: write
+jobs:
+  descargar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar con verificación MD5
+        run: |
+          set -e
+          U=$(curl -sS -I https://download.geofabrik.de/south-america/argentina-latest.osm.pbf | grep -i '^location' | awk '{print $2}' | tr -d '\r')
+          F=$(basename "${U:-argentina-latest.osm.pbf}")
+          echo "archivo: $F"
+          for i in 1 2 3 4 5; do curl -sSL -C - --retry 5 -o argentina.osm.pbf "https://download.geofabrik.de/south-america/$F" && break; sleep 10; done
+          curl -sSL https://download.geofabrik.de/south-america/argentina-latest.osm.pbf.md5 -o publicado.md5
+          PUB=$(cut -d' ' -f1 publicado.md5); LOC=$(md5sum argentina.osm.pbf | cut -d' ' -f1)
+          echo "MD5 publicado $PUB / local $LOC"
+          test "$PUB" = "$LOC"
+          FECHA=$(echo "$F" | grep -oE '[0-9]{6}' || date +%y%m%d)
+          echo "FECHA=$FECHA" >> $GITHUB_ENV
+          echo "$LOC  argentina-$FECHA.osm.pbf" > argentina-$FECHA.md5
+          mv argentina.osm.pbf argentina-$FECHA.osm.pbf
+      - name: Publicar como release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG=osm-$FECHA
+          gh release delete $TAG -y --cleanup-tag 2>/dev/null || true
+          gh release create $TAG argentina-$FECHA.osm.pbf argentina-$FECHA.md5 \
+            --title "OpenStreetMap Argentina $FECHA (Geofabrik)" \
+            --notes "Extracto de Argentina de Geofabrik (south-america/argentina), fecha $FECHA, MD5 verificado contra el publicado por Geofabrik. © colaboradores de OpenStreetMap, licencia ODbL."
