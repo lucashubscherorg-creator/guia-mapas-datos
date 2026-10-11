@@ -1,0 +1,31 @@
+name: Relieve Copernicus GLO-30
+# Descarga teselas del modelo digital de elevación Copernicus GLO-30 (30 m) para un recuadro y las publica.
+on:
+  workflow_dispatch:
+  push:
+    paths: ['pedido-dem.txt']
+permissions:
+  contents: write
+jobs:
+  dem:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Descargar teselas
+        run: |
+          set -e
+          read TAG LAT0 LAT1 LON0 LON1 < pedido-dem.txt   # ej.: tucuman 26 28 64 66  (S y O, grados enteros)
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          mkdir -p dem
+          for la in $(seq $LAT0 $LAT1); do for lo in $(seq $LON0 $LON1); do
+            n=Copernicus_DSM_COG_10_S${la}_00_W0${lo}_00_DEM
+            curl -sS -f --retry 3 -o dem/$n.tif https://copernicus-dem-30m.s3.amazonaws.com/$n/$n.tif && echo "ok $n" || echo "sin tesela $n"
+          done; done
+          ls -la dem
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete dem-$TAG -y --cleanup-tag 2>/dev/null || true
+          gh release create dem-$TAG dem/*.tif --title "Relieve Copernicus GLO-30 — $TAG" \
+            --notes "Copernicus DEM GLO-30 (ESA/Airbus), © DLR e.V. 2010-2014 y © Airbus Defence and Space GmbH 2014-2018, provisto bajo licencia COPERNICUS por la Unión Europea y la ESA."
