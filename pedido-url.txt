@@ -1,3 +1,9 @@
-delitos-caba
-delitos_2025.csv https://data.buenosaires.gob.ar/dataset/delitos/resource/66c0f0f6-e682-403d-abbe-47227d1966fe/download
-delitos_2024.csv https://data.buenosaires.gob.ar/dataset/delitos/resource/49f58c2e-21d7-4766-84e0-4bb753d28478/download
+ckan-busqueda
+anillo.json https://data.buenosaires.gob.ar/api/3/action/package_show?id=flujo-vehicular-anillo-digital
+riesgo.json https://data.buenosaires.gob.ar/api/3/action/package_search?q=riesgo&rows=50
+inunda.json https://data.buenosaires.gob.ar/api/3/action/package_search?q=inundacion&rows=50
+hidrico.json https://data.buenosaires.gob.ar/api/3/action/package_search?q=hidrico&rows=50
+transito.json https://data.buenosaires.gob.ar/api/3/action/package_search?q=flujo%20vehicular&rows=50
+ausa.json https://data.buenosaires.gob.ar/api/3/action/package_search?q=ausa&rows=50
+nac_inunda.json https://datos.gob.ar/api/3/action/package_search?q=inundacion&rows=50
+nac_riesgo.json https://datos.gob.ar/api/3/action/package_search?q=riesgo%20hidrico&rows=50
