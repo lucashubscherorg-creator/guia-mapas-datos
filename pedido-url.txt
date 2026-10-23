@@ -1,2 +1,3 @@
-ign-caps
-ign_wfs_caps.xml https://wms.ign.gob.ar/geoserver/ows?service=WFS&version=1.1.0&request=GetCapabilities
+ign-anegables
+hidrofila.json https://wms.ign.gob.ar/geoserver/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=ign:vegetacion_hidrofila_ED020&outputFormat=application/json&srsName=EPSG:4326&bbox=-63.5,-41.2,-56.5,-33.1,EPSG:4326
+lag_intermitente.json https://wms.ign.gob.ar/geoserver/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=ign:areas_de_aguas_continentales_intermitente&outputFormat=application/json&srsName=EPSG:4326&bbox=-63.5,-41.2,-56.5,-33.1,EPSG:4326
