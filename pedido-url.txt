@@ -1,11 +1,2 @@
-riesgo-transito
-riesgo_hidrico_caba.geojson https://cdn.buenosaires.gob.ar/datosabiertos/datasets/secretaria-de-desarrollo-urbano/riesgo-hidrico/riesgo-hidrico.geojson
-anegamiento_2019.csv https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ministerio-de-justicia-y-seguridad/sitios-posibles-anegamiento/sitios-pasibles-de-anegamiento-por-precipitacion-2019.csv
-anegamiento_2019_shp.zip https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ministerio-de-justicia-y-seguridad/sitios-posibles-anegamiento/sitios-pasibles-de-anegamiento-por-precipitacion-2019.zip
-flujo_anillo.csv https://cdn.buenosaires.gob.ar/datosabiertos/datasets/transporte-y-obras-publicas/flujo-vehicular-anillo-digital/dataset_flujo_vehicular.csv
-conteo_2024.xlsx https://cdn.buenosaires.gob.ar/datosabiertos/datasets/transporte-y-obras-publicas/volumen_vehicular/conteo_vehicular_2024.xlsx
-conteo_ubicaciones.xlsx https://cdn.buenosaires.gob.ar/datosabiertos/datasets/transporte-y-obras-publicas/volumen_vehicular/ubicaciones.xlsx
-conteo_diccionario.xlsx https://cdn.buenosaires.gob.ar/datosabiertos/datasets/transporte-y-obras-publicas/volumen_vehicular/diccionario_conteo_vehicular.xlsx
-peajes_porticos.csv https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ausa/peajes-porticos-autopistas/peajes-y-porticos-autopistas.csv
-ausa_2025.zip https://cdn.buenosaires.gob.ar/datosabiertos/datasets/ausa/flujo-vehicular-por-unidades-de-peaje-ausa/flujo-vehicular-2025.zip
-pba_riesgo_hidrico https://drive.google.com/uc?export=download&id=1uoSHxH1erSoe-vWIYzZTkw8s7NyR0XTl
+ign-caps
+ign_wfs_caps.xml https://wms.ign.gob.ar/geoserver/ows?service=WFS&version=1.1.0&request=GetCapabilities
